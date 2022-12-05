@@ -1,15 +1,23 @@
 package sml.instructions;
 
 import sml.Instruction;
-import sml.LabelBridge;
 import sml.Machine;
 
+/**
+ * A LinInstruction is an Instruction representing a command for storing an integer in a register.
+ *
+ * @author Marton Vago
+ */
 public class LinInstruction extends Instruction {
-	private String label;
-	private int register;
-	private int value;
-	private int register2;
+	private final int register;
+	private final int value;
 
+	/**
+	 * Constructor
+	 * @param label the label for the command
+	 * @param register the register where the integer will be stored
+	 * @param value the integer to store
+	 */
 	public LinInstruction(final String label, int register, int value) {
 		super(label, "lin");
 		this.register = register;
@@ -18,10 +26,7 @@ public class LinInstruction extends Instruction {
 
 	@Override
 	public void execute(Machine m) {
-
 		m.getRegisters().setRegister(register, value);
-		var lbl = new LabelBridge(m);
-		lbl.indexOf("asdads");
 	}
 
 	@Override
