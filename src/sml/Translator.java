@@ -92,26 +92,24 @@ public final class Translator {
 		}
 		var opCode = scan();
 
-		return returnInstruction(label, opCode);
+        switch (opCode) {
+			case "add" -> {
+			   r = scanInt();
+			   s1 = scanInt();
+			   s2 = scanInt();
+			   return new AddInstruction(label, r, s1, s2);
+			}
+			case "lin" -> {
+			   r = scanInt();
+			   s1 = scanInt();
+			   return new LinInstruction(label, r, s1);
+			}
 
-       switch (opCode) {
-           case "add" -> {
-               r = scanInt();
-               s1 = scanInt();
-               s2 = scanInt();
-               return new AddInstruction(label, r, s1, s2);
-           }
-           case "lin" -> {
-               r = scanInt();
-               s1 = scanInt();
-               return new LinInstruction(label, r, s1);
-           }
+			// TODO: You will have to write code here for the other instructions.
 
-           // TODO: You will have to write code here for the other instructions.
-
-           default -> {
-               System.out.println("Unknown instruction: " + opCode);
-           }
+			default -> {
+			   System.out.println("Unknown instruction: " + opCode);
+			}
        }
 		return null; // FIX THIS
 	}

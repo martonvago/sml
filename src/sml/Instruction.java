@@ -1,9 +1,9 @@
 package sml;
 
 /**
- * This class represents an abstract instruction
+ * This class represents an abstract instruction.
  *
- * @author ...
+ * @author Marton Vago
  */
 public abstract class Instruction {
 	private String label;
@@ -14,7 +14,7 @@ public abstract class Instruction {
 	 * operation of the language)
 	 *
 	 * @param l  label
-	 * @param op operand
+	 * @param op opcode
 	 */
 	public Instruction(String l, String op) {
 		setLabel(l);
@@ -39,11 +39,9 @@ public abstract class Instruction {
 
 	public abstract void execute(Machine m);
 
-	// =
-
 	@Override
 	public String toString() {
-		return getLabel() + ": " + getOpcode();
+		return "[" + getLabel() + ": " + getOpcode() + "]";
 	}
 
 }
