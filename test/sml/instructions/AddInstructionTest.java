@@ -101,8 +101,6 @@ class AddInstructionTest {
   @Test
   void toStringReturnsCorrectString() {
     // given
-    regs.setRegister(2,-5);
-    regs.setRegister(3,-6);
     i = new AddInstruction("lbl", 1, 2, 3);
 
     // when

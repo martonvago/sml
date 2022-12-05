@@ -10,7 +10,7 @@ import sml.Registers;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class SubInstructionTest {
+class MulInstructionTest {
   private Machine m;
   private Instruction i;
   private Registers regs;
@@ -30,25 +30,39 @@ class SubInstructionTest {
   }
 
   @Test
-  void executeSubtractsPositiveNumbersCorrectly() {
+  void executeMultipliesPositiveNumbersCorrectly() {
     // given
     regs.setRegister(2,5);
     regs.setRegister(3,6);
-    i = new SubInstruction("lbl", 1, 2, 3);
+    i = new MulInstruction("lbl", 1, 2, 3);
 
     // when
     i.execute(m);
 
     // then
-    assertEquals(-1, m.getRegisters().getRegister(1));
+    assertEquals(30, m.getRegisters().getRegister(1));
   }
 
   @Test
-  void executeSubtractsZerosCorrectly() {
+  void executeMultipliesPositiveAndNegativeNumberCorrectly() {
+    // given
+    regs.setRegister(2,-5);
+    regs.setRegister(3,6);
+    i = new MulInstruction("lbl", 1, 2, 3);
+
+    // when
+    i.execute(m);
+
+    // then
+    assertEquals(-30, m.getRegisters().getRegister(1));
+  }
+
+  @Test
+  void executeMultipliesZerosCorrectly() {
     // given
     regs.setRegister(2,0);
     regs.setRegister(3,0);
-    i = new SubInstruction("lbl", 1, 2, 3);
+    i = new MulInstruction("lbl", 1, 2, 3);
 
     // when
     i.execute(m);
@@ -58,17 +72,17 @@ class SubInstructionTest {
   }
 
   @Test
-  void executeSubtractsNegativeNumbersCorrectly() {
+  void executeMultipliesNegativeNumbersCorrectly() {
     // given
     regs.setRegister(2,-5);
     regs.setRegister(3,-6);
-    i = new SubInstruction("lbl", 1, 2, 3);
+    i = new MulInstruction("lbl", 1, 2, 3);
 
     // when
     i.execute(m);
 
     // then
-    assertEquals(1, m.getRegisters().getRegister(1));
+    assertEquals(30, m.getRegisters().getRegister(1));
   }
 
   @Test
@@ -76,7 +90,7 @@ class SubInstructionTest {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
       // given
       regs.setRegister(3,-6);
-      i = new SubInstruction("lbl", 1, 32, 3);
+      i = new MulInstruction("lbl", 1, 32, 3);
 
       // when
       i.execute(m);
@@ -86,12 +100,12 @@ class SubInstructionTest {
   @Test
   void toStringReturnsCorrectString() {
     // given
-    i = new SubInstruction("lbl", 1, 2, 3);
+    i = new MulInstruction("lbl", 1, 2, 3);
 
     // when
     var result = i.toString();
 
     // then
-    assertEquals("[lbl: sub] store in register 1 the contents of register 3 subtracted from the contents of register 2", result);
+    assertEquals("[lbl: mul] store in register 1 the contents of register 2 multiplied by the contents of register 3", result);
   }
 }
