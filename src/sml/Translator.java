@@ -125,6 +125,11 @@ public final class Translator {
 				s1 = scanInt();
 				return new OutInstruction(label, s1);
 			}
+			case "bnz" -> {
+				s1 = scanInt();
+				lbl = scan();
+				return new BnzInstruction(label, s1, lbl);
+			}
 
 			// TODO: You will have to write code here for the other instructions.
 
