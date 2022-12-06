@@ -121,6 +121,10 @@ public final class Translator {
 			   s1 = scanInt();
 			   return new LinInstruction(label, r, s1);
 			}
+			case "out" -> {
+				s1 = scanInt();
+				return new OutInstruction(label, s1);
+			}
 
 			// TODO: You will have to write code here for the other instructions.
 
