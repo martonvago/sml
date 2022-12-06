@@ -1,7 +1,6 @@
 package sml.instructions;
 
 import org.junit.jupiter.api.*;
-import sml.Instruction;
 import sml.Machine;
 import sml.Registers;
 
@@ -17,7 +16,6 @@ class OutInstructionTest {
   private static final String lineSeparator = System.getProperty("line.separator");
 
   private Machine m;
-  private Instruction i;
   private Registers regs;
 
   @BeforeAll
@@ -41,7 +39,6 @@ class OutInstructionTest {
   @AfterEach
   void tearDown() {
     m = null;
-    i = null;
     regs = null;
   }
 
@@ -49,10 +46,10 @@ class OutInstructionTest {
   void executePrintsValueCorrectly() {
     // given
     regs.setRegister(2,4);
-    i = new OutInstruction("lbl", 2);
+    var instruction = new OutInstruction("lbl", 2);
 
     // when
-    i.execute(m);
+    instruction.execute(m);
 
     // then
     assertEquals("4" + lineSeparator, outContent.toString());
@@ -61,10 +58,10 @@ class OutInstructionTest {
   @Test
   void executePrintsValueCorrectlyWhenRegisterEmpty() {
     // given
-    i = new OutInstruction("lbl", 2);
+    var instruction = new OutInstruction("lbl", 2);
 
     // when
-    i.execute(m);
+    instruction.execute(m);
 
     // then
     assertEquals("0" + lineSeparator, outContent.toString());
@@ -74,20 +71,20 @@ class OutInstructionTest {
   void executeThrowsIfRegisterDoesNotExist() {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
       // given
-      i = new OutInstruction("lbl", 32);
+      var instruction = new OutInstruction("lbl", 32);
 
       // when
-      i.execute(m);
+      instruction.execute(m);
     });
   }
 
   @Test
   void toStringReturnsCorrectString() {
     // given
-    i = new OutInstruction("lbl", 1);
+    var instruction = new OutInstruction("lbl", 1);
 
     // when
-    var result = i.toString();
+    var result = instruction.toString();
 
     // then
     assertEquals("[lbl: out] print the contents of register 1 to the console", result);
