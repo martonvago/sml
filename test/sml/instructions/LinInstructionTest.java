@@ -1,6 +1,5 @@
 package sml.instructions;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sml.Machine;
@@ -16,11 +15,6 @@ class LinInstructionTest {
   void setUp() {
     m = new Machine();
     m.setRegisters(new Registers());
-  }
-
-  @AfterEach
-  void tearDown() {
-    m = null;
   }
 
   @Test

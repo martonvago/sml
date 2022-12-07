@@ -20,6 +20,18 @@ class GetInstructionTest {
   }
 
   @Test
+  void returnsNullIfLineEmpty() throws InstructionParseFailedException {
+    // given
+    Translator t = new Translator("a/path", properties);
+
+    // when
+    var instruction = t.getInstruction("L0");
+
+    // then
+    assertNull(instruction);
+  }
+
+  @Test
   void parsesAddCorrectly() throws InstructionParseFailedException {
     // given
     var opCode = "add";

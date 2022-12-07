@@ -1,6 +1,9 @@
 package sml.instructions;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import sml.Machine;
 import sml.Registers;
 
@@ -34,12 +37,6 @@ class OutInstructionTest {
     m.setRegisters(new Registers());
     regs = m.getRegisters();
     outContent.reset();
-  }
-
-  @AfterEach
-  void tearDown() {
-    m = null;
-    regs = null;
   }
 
   @Test
