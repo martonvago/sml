@@ -1,8 +1,8 @@
 package sml.exceptions;
 
 /**
- * InvalidInstructionException is an Exception thrown when the Translator encounters an Instruction specification
- * which violates SML syntax.
+ * InvalidInstructionException is an Exception thrown when the Translator encounters an Instruction class
+ * which does not specify a valid instruction.
  *
  * @author Marton Vago
  */

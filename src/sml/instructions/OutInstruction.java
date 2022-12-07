@@ -30,4 +30,8 @@ public class OutInstruction extends Instruction {
 	public String toString() {
 		return super.toString() + " print the contents of register " + register + " to the console";
 	}
+
+	public int getRegister() {
+		return register;
+	}
 }

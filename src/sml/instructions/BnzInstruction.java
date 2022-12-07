@@ -56,4 +56,12 @@ public class BnzInstruction extends Instruction {
 			+ " if the contents of register " + register
 			+ " are not zero";
 	}
+
+	public int getRegister() {
+		return register;
+	}
+
+	public String getJumpToLabel() {
+		return jumpToLabel;
+	}
 }

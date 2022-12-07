@@ -41,4 +41,16 @@ public class DivInstruction extends Instruction {
 			+ " the contents of register " + register1
 			+ " divided by the contents of register " + register2;
 	}
+
+	public int getResultRegister() {
+		return resultRegister;
+	}
+
+	public int getRegister1() {
+		return register1;
+	}
+
+	public int getRegister2() {
+		return register2;
+	}
 }

@@ -33,4 +33,12 @@ public class LinInstruction extends Instruction {
 	public String toString() {
 		return super.toString() + " store in register " + register + " the value " + value;
 	}
+
+	public int getRegister() {
+		return register;
+	}
+
+	public int getValue() {
+		return value;
+	}
 }

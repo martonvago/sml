@@ -41,4 +41,16 @@ public class AddInstruction extends Instruction {
 			+ " the contents of register " + register1
 			+ " added to the contents of register " + register2;
 	}
+
+	public int getResultRegister() {
+		return resultRegister;
+	}
+
+	public int getRegister1() {
+		return register1;
+	}
+
+	public int getRegister2() {
+		return register2;
+	}
 }

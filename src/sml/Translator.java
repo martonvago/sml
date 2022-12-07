@@ -1,14 +1,17 @@
 package sml;
 
+import sml.exceptions.InstructionParseFailedException;
 import sml.exceptions.InvalidInstructionException;
+import sml.exceptions.UnexpectedOperandException;
 import sml.exceptions.UnknownInstructionException;
-import sml.exceptions.UnknownOperandException;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Properties;
+import java.util.Scanner;
 
 /**
  * Translator encapsulates the logic for parsing a .sml file into an SML program. It reads the program file
@@ -17,6 +20,11 @@ import java.util.*;
  * @author Classroom[bot] and Marton Vago
  */
 public final class Translator {
+	/**
+	 * The prefix of the keys in config.properties
+	 */
+	public static final String INSTRUCTION_KEY_PREFIX = "sml.instructions.";
+
 	/**
 	 * The contents of the config.properties file
 	 */
@@ -43,8 +51,17 @@ public final class Translator {
 	}
 
 	/**
+	 * Change the current line of the Translator
+	 * @param newLine the new line
+	 */
+	public void setLine(String newLine) {
+		line = newLine;
+	}
+
+	/**
 	 * Parses an SML program from a file with the given file name.
 	 * A file is parsed successfully if each line is translated into an Instruction without errors.
+	 * If one line fails, the entire file is deemed invalid and translation is terminated.
 	 * Empty lines are skipped.
 	 * An empty program file is a valid program file.
 	 *
@@ -71,14 +88,12 @@ public final class Translator {
 				}
 			}
 			return true;
-		} catch (IOException ioE) {
+		} catch (IOException ex) {
 			System.err.println("Error while reading the program file.");
-			ioE.printStackTrace();
+			ex.printStackTrace();
 			return false;
-		} catch (UnknownOperandException | UnknownInstructionException | InvalidInstructionException
-				| ClassNotFoundException | InvocationTargetException | InstantiationException
-				| IllegalAccessException ex) {
-			System.err.println("Error while parsing instruction.");
+		} catch (InstructionParseFailedException ex) {
+			System.err.println("Error while parsing an instruction.");
 			ex.printStackTrace();
 			return false;
 		}
@@ -91,9 +106,7 @@ public final class Translator {
 	 * @param label the label of the Instruction
 	 * @return the parsed Instruction with the label attached
 	 */
-	public Instruction getInstruction(String label) throws ClassNotFoundException, InvocationTargetException,
-			InstantiationException, IllegalAccessException, UnknownOperandException, UnknownInstructionException,
-			InvalidInstructionException {
+	public Instruction getInstruction(String label) throws InstructionParseFailedException {
 
 		if (line.equals("")) {
 			return null;
@@ -101,38 +114,53 @@ public final class Translator {
 
 		var opCode = scan();
 		// Look up the class implementing the instruction with the given op code
-		var className = properties.getProperty("sml.instructions." + opCode);
-		if (className == null) {
-			throw new UnknownInstructionException(opCode);
-		}
+		var className = properties.getProperty(INSTRUCTION_KEY_PREFIX + opCode);
 
-		var instructionClass = Class.forName(className);
-		// Find the constructor for the class
-		var constructor = instructionClass.getConstructors()[0];
-		// Look up the parameters of the constructor
-		var paramTypes = constructor.getParameterTypes();
-		if (paramTypes.length < 1 || !paramTypes[0].equals(String.class)) {
-			throw new InvalidInstructionException("Instructions must have a label as their first component.");
-		}
-
-		// Read in values from the program line which match the constructor parameters
-		Object[] constructorArguments = new Object[paramTypes.length];
-		// The first argument is always the label
-		constructorArguments[0] = label;
-		// The other arguments depend on the specific implementation
-		for (int i = 1; i < paramTypes.length; i++) {
-			var paramType = paramTypes[i];
-			if (paramType.equals(String.class)) {
-				constructorArguments[i] = scan();
-			} else if (paramType.equals(int.class) || paramType.equals(Integer.class)) {
-				constructorArguments[i] = scanInt();
-			} else {
-				throw new UnknownOperandException(paramType);
+		try {
+			if (className == null) {
+				throw new UnknownInstructionException(opCode);
 			}
-		}
 
-		// Instantiate the instruction
-		return (Instruction) constructor.newInstance(constructorArguments);
+			var instructionClass = Class.forName(className);
+			// Find the constructor for the class
+			var constructors = instructionClass.getConstructors();
+			if (constructors.length < 1) {
+				throw new InvalidInstructionException("Instructions must have a public constructor.");
+			}
+			var constructor = constructors[0];
+
+			// Look up the parameters of the constructor
+			var paramTypes = constructor.getParameterTypes();
+			if (paramTypes.length < 1 || !paramTypes[0].equals(String.class)) {
+				throw new InvalidInstructionException("Instructions must have a label as their first component.");
+			}
+
+			// Read in values from the program line which match the constructor parameters
+			Object[] constructorArguments = new Object[paramTypes.length];
+			// The first argument is always the label
+			constructorArguments[0] = label;
+			// The other arguments depend on the specific implementation
+			for (int i = 1; i < paramTypes.length; i++) {
+				var paramType = paramTypes[i];
+				if (paramType.equals(String.class)) {
+					constructorArguments[i] = scan();
+				} else if (paramType.equals(int.class) || paramType.equals(Integer.class)) {
+					constructorArguments[i] = scanInt();
+				} else {
+					throw new UnexpectedOperandException(paramType);
+				}
+			}
+
+			// Instantiate the instruction
+			return (Instruction) constructor.newInstance(constructorArguments);
+
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException
+				| UnexpectedOperandException | UnknownInstructionException | InvalidInstructionException
+				| ClassNotFoundException e
+		) {
+			// Collect all exceptions into a meaningful umbrella exception
+			throw new InstructionParseFailedException(e);
+		}
 	}
 
 	/**
