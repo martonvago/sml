@@ -1,148 +1,143 @@
 package sml;
 
-import sml.instructions.*;
+import sml.exceptions.InvalidInstructionException;
+import sml.exceptions.UnknownInstructionException;
+import sml.exceptions.UnknownOperandException;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
- * This class ....
- * <p>
- * The translator of a <b>S</b><b>M</b>al<b>L</b> program.
+ * Translator encapsulates the logic for parsing a .sml file into an SML program. It reads the program file
+ * line by line, translating each line into an Instruction.
  *
- * @author ...
+ * @author Classroom[bot] and Marton Vago
  */
 public final class Translator {
+	/**
+	 * The contents of the config.properties file
+	 */
+	private final Properties properties;
 
-	private static final String PATH = "";
+	/**
+	 * The path to the program file
+	 */
+	private final String pathToFile;
 
-	// word + line is the part of the current line that's not yet processed
-	// word has no whitespace
-	// If word and line are not empty, line begins with whitespace
-	private final String fileName; // source file of SML code
+	/**
+	 * The line of the program file being parsed
+	 */
 	private String line = "";
 
-	public Translator(String file) {
-		fileName = PATH + file;
+	/**
+	 * Constructor
+	 * @param path the path to the program file
+	 * @param props the contents of the config.properties file
+	 */
+	public Translator(String path, Properties props) {
+		pathToFile = path;
+		properties = props;
 	}
 
-	// translate the small program in the file into lab (the labels) and
-	// prog (the program)
-	// return "no errors were detected"
+	/**
+	 * Parses an SML program from a file with the given file name.
+	 * A file is parsed successfully if each line is translated into an Instruction without errors.
+	 * Empty lines are skipped.
+	 * An empty program file is a valid program file.
+	 *
+	 * @param labels the labels of a Machine
+	 * @param instructions the program instructions of a Machine
+	 * @return if the file was parsed successfully or not
+	 */
+	public boolean readAndTranslate(Labels labels, List<Instruction> instructions) {
+		try (var scanner = new Scanner(new File(pathToFile), StandardCharsets.UTF_8)) {
+			labels.reset();
+			instructions.clear();
 
-	public boolean readAndTranslate(Labels lab, List<Instruction> prog) {
-		try (var sc = new Scanner(new File(fileName), "UTF-8")) {
-			// Scanner attached to the file chosen by the user
-			// The labels of the program being translated
-			lab.reset();
-			// The program to be created
-			prog.clear();
-
-			try {
-				line = sc.nextLine();
-			} catch (NoSuchElementException ioE) {
-				return false;
-			}
-
-			// Each iteration processes line and reads the next input line into "line"
-			while (line != null) {
-				// Store the label in label
+			// Each iteration parses a line from the .sml file
+			while (scanner.hasNextLine()) {
+				line = scanner.nextLine();
 				var label = scan();
 
 				if (label.length() > 0) {
-					var ins = getInstruction(label);
-					if (ins != null) {
-						lab.addLabel(label);
-						prog.add(ins);
+					var instruction = getInstruction(label);
+					if (instruction != null) {
+						labels.addLabel(label);
+						instructions.add(instruction);
 					}
 				}
-
-				try {
-					line = sc.nextLine();
-				} catch (NoSuchElementException ioE) {
-					return false;
-				}
 			}
+			return true;
 		} catch (IOException ioE) {
-			System.err.println("File: IO error " + ioE);
+			System.err.println("Error while reading the program file.");
+			ioE.printStackTrace();
+			return false;
+		} catch (UnknownOperandException | UnknownInstructionException | InvalidInstructionException
+				| ClassNotFoundException | InvocationTargetException | InstantiationException
+				| IllegalAccessException ex) {
+			System.err.println("Error while parsing instruction.");
+			ex.printStackTrace();
 			return false;
 		}
-		return true;
 	}
 
-	// The input line should consist of an SML instruction, with its label already
-	// removed.
-	// Translate line into an instruction with label "label" and return the
-	// instruction
-	public Instruction getInstruction(String label) {
-		int s1; // Possible operands of the instruction
-		int s2;
-		int r;
-		String lbl;
+	/**
+	 * Parses a line from a program file (with its label detached) into an SML Instruction.
+	 * Returns null if the line is empty.
+	 *
+	 * @param label the label of the Instruction
+	 * @return the parsed Instruction with the label attached
+	 */
+	public Instruction getInstruction(String label) throws ClassNotFoundException, InvocationTargetException,
+			InstantiationException, IllegalAccessException, UnknownOperandException, UnknownInstructionException,
+			InvalidInstructionException {
 
 		if (line.equals("")) {
 			return null;
 		}
+
 		var opCode = scan();
+		// Look up the class implementing the instruction with the given op code
+		var className = properties.getProperty("sml.instructions." + opCode);
+		if (className == null) {
+			throw new UnknownInstructionException(opCode);
+		}
 
-        switch (opCode) {
-			case "add" -> {
-			   r = scanInt();
-			   s1 = scanInt();
-			   s2 = scanInt();
-			   return new AddInstruction(label, r, s1, s2);
-			}
-			case "sub" -> {
-				r = scanInt();
-				s1 = scanInt();
-				s2 = scanInt();
-				return new SubInstruction(label, r, s1, s2);
-			}
-			case "mul" -> {
-				r = scanInt();
-				s1 = scanInt();
-				s2 = scanInt();
-				return new MulInstruction(label, r, s1, s2);
-			}
-			case "div" -> {
-				r = scanInt();
-				s1 = scanInt();
-				s2 = scanInt();
-				return new DivInstruction(label, r, s1, s2);
-			}
-			case "lin" -> {
-			   r = scanInt();
-			   s1 = scanInt();
-			   return new LinInstruction(label, r, s1);
-			}
-			case "out" -> {
-				s1 = scanInt();
-				return new OutInstruction(label, s1);
-			}
-			case "bnz" -> {
-				s1 = scanInt();
-				lbl = scan();
-				return new BnzInstruction(label, s1, lbl);
-			}
+		var instructionClass = Class.forName(className);
+		// Find the constructor for the class
+		var constructor = instructionClass.getConstructors()[0];
+		// Look up the parameters of the constructor
+		var paramTypes = constructor.getParameterTypes();
+		if (paramTypes.length < 1 || !paramTypes[0].equals(String.class)) {
+			throw new InvalidInstructionException("Instructions must have a label as their first component.");
+		}
 
-			// TODO: You will have to write code here for the other instructions.
-
-			default -> {
-			   System.out.println("Unknown instruction: " + opCode);
+		// Read in values from the program line which match the constructor parameters
+		Object[] constructorArguments = new Object[paramTypes.length];
+		// The first argument is always the label
+		constructorArguments[0] = label;
+		// The other arguments depend on the specific implementation
+		for (int i = 1; i < paramTypes.length; i++) {
+			var paramType = paramTypes[i];
+			if (paramType.equals(String.class)) {
+				constructorArguments[i] = scan();
+			} else if (paramType.equals(int.class) || paramType.equals(Integer.class)) {
+				constructorArguments[i] = scanInt();
+			} else {
+				throw new UnknownOperandException(paramType);
 			}
-       }
-		return null; // FIX THIS
+		}
+
+		// Instantiate the instruction
+		return (Instruction) constructor.newInstance(constructorArguments);
 	}
 
-	/*
-	 * Return the first word of line and remove it from line. If there is no word,
-	 * return ""
+	/**
+	 * Remove the first word from 'line' and return it. If the line contains only whitespace, return the empty string.
+	 * @return the first word of the line
 	 */
 	private String scan() {
 		line = line.trim();
@@ -152,20 +147,20 @@ public final class Translator {
 
 		int i = 0;
 		while (i < line.length() && line.charAt(i) != ' ' && line.charAt(i) != '\t') {
-			i = i + 1;
+			i++;
 		}
 		String word = line.substring(0, i);
 		line = line.substring(i);
 		return word;
 	}
 
-	// Return the first word of line as an integer. If there is any error, return
-	// the maximum int
+	/**
+	 * Remove the first word from 'line' and return it parsed as an integer.
+	 * If the word is not parseable as an integer return the maximum integer.
+	 * @return the first word of the line
+	 */
 	private int scanInt() {
 		String word = scan();
-		if (word.length() == 0) {
-			return Integer.MAX_VALUE;
-		}
 
 		try {
 			return Integer.parseInt(word);
