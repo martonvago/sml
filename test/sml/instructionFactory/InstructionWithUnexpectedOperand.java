@@ -1,4 +1,4 @@
-package sml.translator;
+package sml.instructionFactory;
 
 import sml.Instruction;
 import sml.Machine;

@@ -1,17 +1,17 @@
-package sml.translator;
+package sml.instructionFactory;
 
 import sml.Instruction;
 import sml.Machine;
 
 /**
- * An arbitrary Instruction subclass for testing. It has a private constructor.
+ * An arbitrary Instruction subclass for testing. It is abstract and therefore cannot be instantiated.
  *
  * @author Marton Vago
  */
-public abstract class InstructionWithPrivateConstructor extends Instruction {
+public abstract class AbstractTestInstruction extends Instruction {
 	private final int value1;
 
-	private InstructionWithPrivateConstructor(String label, int v1) {
+	public AbstractTestInstruction(String label, int v1) {
 		super(label, "test");
 		value1 = v1;
 	}
