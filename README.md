@@ -22,7 +22,7 @@ amongst other skills.
 
 **Name**: Marton Vago
 
-**Your userid**: e.g., mvago01
+**Your userid**: mvago01
 
 Please do not forget to complete this part as too often we have "orphaned" repositories which can require months to sort out.
 

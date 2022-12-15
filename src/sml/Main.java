@@ -1,9 +1,5 @@
 package sml;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
-
 public class Main {
 	/**
 	 * Initialises the system and executes the program.
@@ -11,22 +7,13 @@ public class Main {
 	 * @param args name of the file containing the program text.
 	 */
 	public static void main(String... args) {
-		InputStream input = Main.class.getClassLoader().getResourceAsStream("config.properties");
-		Properties properties = new Properties();
-		try {
-			properties.load(input);
-		} catch (IOException e) {
-			System.err.println("Could not find config.properties");
-			System.exit(-1);
-		}
-
 		if (args.length != 1) {
 			System.err.println("Incorrect number of arguments - Machine <file> - required");
 			System.exit(-1);
 		}
 
 		Machine m = new Machine();
-		Translator t = new Translator(args[0], properties);
+		Translator t = new Translator(args[0]);
 		var success = t.readAndTranslate(m.getLabels(), m.getProg());
 		if (!success) {
 			System.err.println("Could not parse program file.");
