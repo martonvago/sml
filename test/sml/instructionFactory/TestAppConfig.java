@@ -1,7 +1,12 @@
-package sml;
+package sml.instructionFactory;
+
+import sml.InstructionMapper;
 
 import java.util.Properties;
 
+/**
+ * Dummy instruction mapper to facilitate testing the instruction factory.
+ */
 public class TestAppConfig implements InstructionMapper {
     private final Properties properties = new Properties();
 

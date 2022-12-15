@@ -13,14 +13,14 @@ class AddInstructionTest {
   private Registers regs;
 
   @BeforeEach
-  void setUp() {
+  public void setUp() {
     m = new Machine();
     m.setRegisters(new Registers());
     regs = m.getRegisters();
   }
 
   @Test
-  void executeAddsPositiveNumbersCorrectly() {
+  public void executeAddsPositiveNumbersCorrectly() {
     // given
     regs.setRegister(2,5);
     regs.setRegister(3,6);
@@ -34,7 +34,7 @@ class AddInstructionTest {
   }
 
   @Test
-  void executeAddsPositiveAndNegativeNumberCorrectly() {
+  public void executeAddsPositiveAndNegativeNumberCorrectly() {
     // given
     regs.setRegister(2,-5);
     regs.setRegister(3,6);
@@ -48,7 +48,7 @@ class AddInstructionTest {
   }
 
   @Test
-  void executeAddsZerosCorrectly() {
+  public void executeAddsZerosCorrectly() {
     // given
     regs.setRegister(2,0);
     regs.setRegister(3,0);
@@ -62,7 +62,7 @@ class AddInstructionTest {
   }
 
   @Test
-  void executeAddsNegativeNumbersCorrectly() {
+  public void executeAddsNegativeNumbersCorrectly() {
     // given
     regs.setRegister(2,-5);
     regs.setRegister(3,-6);
@@ -76,7 +76,7 @@ class AddInstructionTest {
   }
 
   @Test
-  void executeThrowsIfRegisterDoesNotExist() {
+  public void executeThrowsIfRegisterDoesNotExist() {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
       // given
       regs.setRegister(3,-6);
@@ -88,7 +88,7 @@ class AddInstructionTest {
   }
 
   @Test
-  void toStringReturnsCorrectString() {
+  public void toStringReturnsCorrectString() {
     // given
     var instruction = new AddInstruction("lbl", 1, 2, 3);
 

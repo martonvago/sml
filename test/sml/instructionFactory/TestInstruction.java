@@ -11,9 +11,9 @@ import sml.Machine;
 public class TestInstruction extends Instruction {
 	private final String value1;
 	private final String value2;
-	private final String value3;
+	private final int value3;
 
-	public TestInstruction(String label, String v1, String v2, String v3) {
+	public TestInstruction(String label, String v1, String v2, int v3) {
 		super(label, "test");
 		value1 = v1;
 		value2 = v2;
@@ -36,7 +36,7 @@ public class TestInstruction extends Instruction {
 		return value2;
 	}
 
-	public String getValue3() {
+	public int getValue3() {
 		return value3;
 	}
 }

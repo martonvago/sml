@@ -4,7 +4,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import sml.InstructionFactory;
 import sml.Line;
-import sml.TestAppConfig;
 import sml.exceptions.InstructionParseFailedException;
 import sml.instructions.*;
 
@@ -15,14 +14,14 @@ class InstructionFactoryTest {
     private final InstructionFactory instructionFactory = new InstructionFactory(testMapper);
     
     @BeforeEach
-    void setUp() {
+    public void setUp() {
         testMapper.clear();
     }
     
     @Test
-    void returnsNullIfLineEmpty() throws InstructionParseFailedException {
+    public void returnsNullIfLineIsEmptyString() throws InstructionParseFailedException {
         // given
-        var line = Line.of("L0");
+        var line = Line.of("");
         
         // when
         var instruction = instructionFactory.createInstruction(line);
@@ -30,9 +29,21 @@ class InstructionFactoryTest {
         // then
         assertNull(instruction);
     }
+
+    @Test
+    public void returnsNullIfLineHasOnlyLabel() throws InstructionParseFailedException {
+        // given
+        var line = Line.of("L0");
+
+        // when
+        var instruction = instructionFactory.createInstruction(line);
+
+        // then
+        assertNull(instruction);
+    }
     
     @Test
-    void parsesAddCorrectly() throws InstructionParseFailedException {
+    public void parsesAddCorrectly() throws InstructionParseFailedException {
         // given
         var opCode = "add";
         testMapper.setProperty(opCode, AddInstruction.class.getName());
@@ -56,7 +67,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void parsesSubCorrectly() throws InstructionParseFailedException {
+    public void parsesSubCorrectly() throws InstructionParseFailedException {
         // given
         var opCode = "sub";
         testMapper.setProperty(opCode, SubInstruction.class.getName());
@@ -80,7 +91,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void parsesMulCorrectly() throws InstructionParseFailedException {
+    public void parsesMulCorrectly() throws InstructionParseFailedException {
         // given
         var opCode = "mul";
         testMapper.setProperty(opCode, MulInstruction.class.getName());
@@ -104,7 +115,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void parsesDivCorrectly() throws InstructionParseFailedException {
+    public void parsesDivCorrectly() throws InstructionParseFailedException {
         // given
         var opCode = "div";
         testMapper.setProperty(opCode, DivInstruction.class.getName());
@@ -128,7 +139,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void parsesLinCorrectly() throws InstructionParseFailedException {
+    public void parsesLinCorrectly() throws InstructionParseFailedException {
         // given
         var opCode = "lin";
         testMapper.setProperty(opCode, LinInstruction.class.getName());
@@ -150,7 +161,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void parsesOutCorrectly() throws InstructionParseFailedException {
+    public void parsesOutCorrectly() throws InstructionParseFailedException {
         // given
         var opCode = "out";
         testMapper.setProperty(opCode, OutInstruction.class.getName());
@@ -170,7 +181,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void parsesBnzCorrectly() throws InstructionParseFailedException {
+    public void parsesBnzCorrectly() throws InstructionParseFailedException {
         // given
         var opCode = "bnz";
         testMapper.setProperty(opCode, BnzInstruction.class.getName());
@@ -190,21 +201,38 @@ class InstructionFactoryTest {
         assertEquals(register, bnzInstruction.getRegister());
         assertEquals(jumpToLabel, bnzInstruction.getJumpToLabel());
     }
-    
+
     @Test
-    void parsesTestInstructionCorrectly() throws InstructionParseFailedException {
+    public void parsesInstructionWithOnlyOpCodeCorrectly() throws InstructionParseFailedException {
+        // given
+        var opCode = "test";
+        testMapper.setProperty(opCode, InstructionWithOnlyOpCode.class.getName());
+        var label = "L0";
+        var line = Line.of(String.format("%s %s", label, opCode));
+
+        // when
+        var instruction = instructionFactory.createInstruction(line);
+
+        // then
+        assertNotNull(instruction);
+        assertEquals(label, instruction.getLabel());
+        assertEquals(opCode, instruction.getOpcode());
+    }
+
+    @Test
+    public void ignoresExtraLineElementsWhenParsing() throws InstructionParseFailedException {
         // given
         var opCode = "test";
         testMapper.setProperty(opCode, TestInstruction.class.getName());
         var label = "L0";
         var value1 = "first";
         var value2 = "second";
-        var value3 = "third";
-        var line = Line.of(String.format("%s %s %s %s %s", label, opCode, value1, value2, value3));
-        
+        var value3 = 34;
+        var line = Line.of(String.format("%s %s %s %s %d something else 1234", label, opCode, value1, value2, value3));
+
         // when
         var instruction = instructionFactory.createInstruction(line);
-        
+
         // then
         assertNotNull(instruction);
         assertEquals(label, instruction.getLabel());
@@ -214,9 +242,54 @@ class InstructionFactoryTest {
         assertEquals(value2, testInstruction.getValue2());
         assertEquals(value3, testInstruction.getValue3());
     }
+
+    @Test
+    public void handlesFailedIntegerParseGracefully() throws InstructionParseFailedException {
+        // given
+        var opCode = "test";
+        testMapper.setProperty(opCode, TestInstruction.class.getName());
+        var label = "L0";
+        var value1 = "first";
+        var value2 = "second";
+        var line = Line.of(String.format("%s %s %s %s notANumber", label, opCode, value1, value2));
+
+        // when
+        var instruction = instructionFactory.createInstruction(line);
+
+        // then
+        assertNotNull(instruction);
+        assertEquals(label, instruction.getLabel());
+        assertEquals(opCode, instruction.getOpcode());
+        var testInstruction = (TestInstruction) instruction;
+        assertEquals(value1, testInstruction.getValue1());
+        assertEquals(value2, testInstruction.getValue2());
+        assertEquals(Integer.MAX_VALUE, testInstruction.getValue3());
+    }
+
+    @Test
+    public void handlesMissingOperandsGracefullyWhenParsing() throws InstructionParseFailedException {
+        // given
+        var opCode = "test";
+        testMapper.setProperty(opCode, TestInstruction.class.getName());
+        var label = "L0";
+        var value1 = "first";
+        var line = Line.of(String.format("%s %s %s", label, opCode, value1));
+
+        // when
+        var instruction = instructionFactory.createInstruction(line);
+
+        // then
+        assertNotNull(instruction);
+        assertEquals(label, instruction.getLabel());
+        assertEquals(opCode, instruction.getOpcode());
+        var testInstruction = (TestInstruction) instruction;
+        assertEquals(value1, testInstruction.getValue1());
+        assertEquals("", testInstruction.getValue2());
+        assertEquals(Integer.MAX_VALUE, testInstruction.getValue3());
+    }
     
     @Test
-    void throwsInstructionParseFailedExceptionIfFirstOperandNotString() {
+    public void throwsInstructionParseFailedExceptionIfFirstOperandNotString() {
         assertThrows(InstructionParseFailedException.class, () -> {
             // given
             var opCode = "test";
@@ -229,7 +302,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void throwsInstructionParseFailedExceptionIfClassConstructorPrivate() {
+    public void throwsInstructionParseFailedExceptionIfClassConstructorPrivate() {
         assertThrows(InstructionParseFailedException.class, () -> {
             // given
             var opCode = "test";
@@ -242,7 +315,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void throwsInstructionParseFailedExceptionIfNoImplementationLinkedInConfigFile() {
+    public void throwsInstructionParseFailedExceptionIfNoImplementationLinkedInConfigFile() {
         assertThrows(InstructionParseFailedException.class, () -> {
             // given
             var line = Line.of("L0 out 2");
@@ -253,7 +326,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void throwsInstructionParseFailedExceptionIfOperandNotStringOrInt() {
+    public void throwsInstructionParseFailedExceptionIfOperandNotStringOrInt() {
         assertThrows(InstructionParseFailedException.class, () -> {
             // given
             var opCode = "test";
@@ -266,7 +339,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void throwsInstructionParseFailedExceptionIfInstructionClassNotFound() {
+    public void throwsInstructionParseFailedExceptionIfInstructionClassNotFound() {
         assertThrows(InstructionParseFailedException.class, () -> {
             // given
             var opCode = "test";
@@ -279,7 +352,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void throwsInstructionParseFailedExceptionIfErrorWhileInstantiatingClass() {
+    public void throwsInstructionParseFailedExceptionIfErrorWhileInstantiatingClass() {
         assertThrows(InstructionParseFailedException.class, () -> {
             // given
             var opCode = "test";
@@ -292,7 +365,7 @@ class InstructionFactoryTest {
     }
     
     @Test
-    void throwsInstructionParseFailedExceptionIfClassCannotBeInstantiated() {
+    public void throwsInstructionParseFailedExceptionIfClassCannotBeInstantiated() {
         assertThrows(InstructionParseFailedException.class, () -> {
             // given
             var opCode = "test";

@@ -12,13 +12,13 @@ class LinInstructionTest {
   private Machine m;
 
   @BeforeEach
-  void setUp() {
+  public void setUp() {
     m = new Machine();
     m.setRegisters(new Registers());
   }
 
   @Test
-  void executeStoresIntegerCorrectly() {
+  public void executeStoresIntegerCorrectly() {
     // given
     var instruction = new LinInstruction("lbl", 1, 2);
 
@@ -30,7 +30,7 @@ class LinInstructionTest {
   }
 
   @Test
-  void executeThrowsIfRegisterDoesNotExist() {
+  public void executeThrowsIfRegisterDoesNotExist() {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
       // given
       var instruction = new LinInstruction("lbl", 32, 3);
@@ -41,7 +41,7 @@ class LinInstructionTest {
   }
 
   @Test
-  void toStringReturnsCorrectString() {
+  public void toStringReturnsCorrectString() {
     // given
     var instruction = new LinInstruction("lbl", 1, 2);
 

@@ -13,14 +13,14 @@ class MulInstructionTest {
   private Registers regs;
 
   @BeforeEach
-  void setUp() {
+  public void setUp() {
     m = new Machine();
     m.setRegisters(new Registers());
     regs = m.getRegisters();
   }
 
   @Test
-  void executeMultipliesPositiveNumbersCorrectly() {
+  public void executeMultipliesPositiveNumbersCorrectly() {
     // given
     regs.setRegister(2,5);
     regs.setRegister(3,6);
@@ -34,7 +34,7 @@ class MulInstructionTest {
   }
 
   @Test
-  void executeMultipliesPositiveAndNegativeNumberCorrectly() {
+  public void executeMultipliesPositiveAndNegativeNumberCorrectly() {
     // given
     regs.setRegister(2,-5);
     regs.setRegister(3,6);
@@ -48,7 +48,7 @@ class MulInstructionTest {
   }
 
   @Test
-  void executeMultipliesZerosCorrectly() {
+  public void executeMultipliesZerosCorrectly() {
     // given
     regs.setRegister(2,0);
     regs.setRegister(3,0);
@@ -62,7 +62,7 @@ class MulInstructionTest {
   }
 
   @Test
-  void executeMultipliesNegativeNumbersCorrectly() {
+  public void executeMultipliesNegativeNumbersCorrectly() {
     // given
     regs.setRegister(2,-5);
     regs.setRegister(3,-6);
@@ -76,7 +76,7 @@ class MulInstructionTest {
   }
 
   @Test
-  void executeThrowsIfRegisterDoesNotExist() {
+  public void executeThrowsIfRegisterDoesNotExist() {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
       // given
       regs.setRegister(3,-6);
@@ -88,7 +88,7 @@ class MulInstructionTest {
   }
 
   @Test
-  void toStringReturnsCorrectString() {
+  public void toStringReturnsCorrectString() {
     // given
     var instruction = new MulInstruction("lbl", 1, 2, 3);
 

@@ -17,14 +17,14 @@ class BnzInstructionTest {
   private Registers regs;
 
   @BeforeEach
-  void setUp() {
+  public void setUp() {
     m = new Machine();
     m.setRegisters(new Registers());
     regs = m.getRegisters();
   }
 
   @Test
-  void executeDoesNotChangeInstructionOrderIfValueZeroAndLabelExists() {
+  public void executeDoesNotChangeInstructionOrderIfValueZeroAndLabelExists() {
     // given
     regs.setRegister(1,0);
     var targetLabel = "L3";
@@ -44,7 +44,7 @@ class BnzInstructionTest {
   }
 
   @Test
-  void executeDoesNotChangeInstructionOrderIfValueZeroAndLabelDoesNotExist() {
+  public void executeDoesNotChangeInstructionOrderIfValueZeroAndLabelDoesNotExist() {
     // given
     regs.setRegister(1,0);
     var targetLabel = "L3";
@@ -63,7 +63,7 @@ class BnzInstructionTest {
   }
 
   @Test
-  void executeJumpsToGivenInstructionIfValueNotZero() {
+  public void executeJumpsToGivenInstructionIfValueNotZero() {
     // given
     regs.setRegister(1,1);
     var targetLabel = "L3";
@@ -83,7 +83,7 @@ class BnzInstructionTest {
   }
 
   @Test
-  void executeJumpsToFirstInstructionWithMatchingLabelIfValueNotZero() {
+  public void executeJumpsToFirstInstructionWithMatchingLabelIfValueNotZero() {
     // given
     regs.setRegister(1,1);
     var targetLabel = "L3";
@@ -105,7 +105,7 @@ class BnzInstructionTest {
   }
 
   @Test
-  void executeThrowsIfRegisterDoesNotExist() {
+  public void executeThrowsIfRegisterDoesNotExist() {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
       // given
       var instruction = new BnzInstruction("lbl", 32, "target");
@@ -116,7 +116,7 @@ class BnzInstructionTest {
   }
 
   @Test
-  void executeThrowsIfGivenLabelDoesNotExistAndValueNotZero() {
+  public void executeThrowsIfGivenLabelDoesNotExistAndValueNotZero() {
     assertThrows(NoSuchElementException.class, () -> {
       // given
       regs.setRegister(1,1);
@@ -128,7 +128,7 @@ class BnzInstructionTest {
   }
 
   @Test
-  void toStringReturnsCorrectString() {
+  public void toStringReturnsCorrectString() {
     // given
     var instruction = new BnzInstruction("lbl", 1, "target");
 
@@ -140,7 +140,7 @@ class BnzInstructionTest {
   }
 
   @Test
-  void bnzDoesNotChangeInstructionOrderIfValueZero_FullProgramRun() {
+  public void bnzDoesNotChangeInstructionOrderIfValueZero_FullProgramRun() {
     // given
     var targetLabel = "L3";
     var instructions = new ArrayList<>(Arrays.asList(
@@ -160,7 +160,7 @@ class BnzInstructionTest {
   }
 
   @Test
-  void bnzJumpsToGivenInstructionIfValueNotZero_FullProgramRun() {
+  public void bnzJumpsToGivenInstructionIfValueNotZero_FullProgramRun() {
     // given
     var targetLabel = "L3";
     var instructions = new ArrayList<>(Arrays.asList(

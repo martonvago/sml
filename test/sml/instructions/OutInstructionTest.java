@@ -22,17 +22,17 @@ class OutInstructionTest {
   private Registers regs;
 
   @BeforeAll
-  static void beforeAll() {
+  static public void beforeAll() {
     System.setOut(new PrintStream(outContent));
   }
 
   @AfterAll
-  static void afterAll() {
+  static public void afterAll() {
     System.setOut(originalOut);
   }
 
   @BeforeEach
-  void setUp() {
+  public void setUp() {
     m = new Machine();
     m.setRegisters(new Registers());
     regs = m.getRegisters();
@@ -40,7 +40,7 @@ class OutInstructionTest {
   }
 
   @Test
-  void executePrintsValueCorrectly() {
+  public void executePrintsValueCorrectly() {
     // given
     regs.setRegister(2,4);
     var instruction = new OutInstruction("lbl", 2);
@@ -53,7 +53,7 @@ class OutInstructionTest {
   }
 
   @Test
-  void executePrintsValueCorrectlyWhenRegisterEmpty() {
+  public void executePrintsValueCorrectlyWhenRegisterEmpty() {
     // given
     var instruction = new OutInstruction("lbl", 2);
 
@@ -65,7 +65,7 @@ class OutInstructionTest {
   }
 
   @Test
-  void executeThrowsIfRegisterDoesNotExist() {
+  public void executeThrowsIfRegisterDoesNotExist() {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
       // given
       var instruction = new OutInstruction("lbl", 32);
@@ -76,7 +76,7 @@ class OutInstructionTest {
   }
 
   @Test
-  void toStringReturnsCorrectString() {
+  public void toStringReturnsCorrectString() {
     // given
     var instruction = new OutInstruction("lbl", 1);
 

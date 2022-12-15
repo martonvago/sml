@@ -13,14 +13,14 @@ class DivInstructionTest {
   private Registers regs;
 
   @BeforeEach
-  void setUp() {
+  public void setUp() {
     m = new Machine();
     m.setRegisters(new Registers());
     regs = m.getRegisters();
   }
 
   @Test
-  void executeDividesPositiveNumbersCorrectly() {
+  public void executeDividesPositiveNumbersCorrectly() {
     // given
     regs.setRegister(2,4);
     regs.setRegister(3,2);
@@ -34,7 +34,7 @@ class DivInstructionTest {
   }
 
   @Test
-  void executeDividesPositiveAndNegativeNumberCorrectly() {
+  public void executeDividesPositiveAndNegativeNumberCorrectly() {
     // given
     regs.setRegister(2,-4);
     regs.setRegister(3,2);
@@ -48,7 +48,7 @@ class DivInstructionTest {
   }
 
   @Test
-  void executeDividesZeroByNonZeroCorrectly() {
+  public void executeDividesZeroByNonZeroCorrectly() {
     // given
     regs.setRegister(2,0);
     regs.setRegister(3,4);
@@ -62,7 +62,7 @@ class DivInstructionTest {
   }
 
   @Test
-  void executeDividesNegativeNumbersCorrectly() {
+  public void executeDividesNegativeNumbersCorrectly() {
     // given
     regs.setRegister(2,-4);
     regs.setRegister(3,-2);
@@ -76,7 +76,7 @@ class DivInstructionTest {
   }
 
   @Test
-  void executeThrowsAwayRemainder() {
+  public void executeThrowsAwayRemainder() {
     // given
     regs.setRegister(2,5);
     regs.setRegister(3,2);
@@ -90,7 +90,7 @@ class DivInstructionTest {
   }
 
   @Test
-  void executeThrowsIfZeroDivision() {
+  public void executeThrowsIfZeroDivision() {
     assertThrows(ArithmeticException.class, () -> {
       // given
       regs.setRegister(2,-6);
@@ -103,7 +103,7 @@ class DivInstructionTest {
   }
 
   @Test
-  void executeThrowsIfRegisterDoesNotExist() {
+  public void executeThrowsIfRegisterDoesNotExist() {
     assertThrows(ArrayIndexOutOfBoundsException.class, () -> {
       // given
       regs.setRegister(3,-6);
@@ -115,7 +115,7 @@ class DivInstructionTest {
   }
 
   @Test
-  void toStringReturnsCorrectString() {
+  public void toStringReturnsCorrectString() {
     // given
     var instruction = new DivInstruction("lbl", 1, 2, 3);
 
