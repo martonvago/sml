@@ -19,6 +19,17 @@ public class LineTest {
     }
 
     @Test
+    public void initialisedCorrectlyWhenWhitespaceOnly() {
+        // when
+        var line = Line.of("        ");
+
+        // then
+        assertEquals("", line.getLabel());
+        assertEquals("", line.getOpCode());
+        assertTrue(line.isEmpty());
+    }
+
+    @Test
     public void initialisedCorrectlyWhenOneWord() {
         // given
         var first = "first";
